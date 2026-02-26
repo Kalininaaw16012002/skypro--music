@@ -1,4 +1,6 @@
-export const data = [
+import { TrackType } from "./app/sharedTypes/sharedTypes";
+
+export const data: TrackType[] = [
   {
     _id: 8,
     name: 'Chase',
@@ -51,7 +53,6 @@ export const data = [
       'https://webdev-music-003b5b991590.herokuapp.com/media/music_files/Mixkit_-_Secret_Garden.mp3',
     stared_user: [],
   },
-
   {
     _id: 12,
     name: 'A journey of successfull winners',
