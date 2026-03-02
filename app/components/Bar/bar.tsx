@@ -4,13 +4,21 @@ import classnames from "classnames";
 import Link from "next/link";
 import styles from './bar.module.css'
 import { useAppDispatch, useAppSelector } from "@/app/store/store";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { setIsPlay } from "@/app/store/features/trackSlice";
 
 export default function Bar() {
     const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
+    const isPlay = useAppSelector((state) => state.tracks.isPlay)
     const dispatch = useAppDispatch();
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+     useEffect(() => {
+        if (currentTrack && isPlay && audioRef.current) {
+            audioRef.current.play()
+        }
+    }, [currentTrack, isPlay])
+
     if (!currentTrack) return <></>;
 
     const playTrack = () => {
@@ -29,7 +37,7 @@ export default function Bar() {
 
     return (    
         <div className={styles.bar}>
-        <audio ref={audioRef} controls src={currentTrack?.track_file}></audio>
+        <audio ref={audioRef} src={currentTrack?.track_file}></audio>
         <div className={styles.bar__content}>
         <div className={styles.bar__playerProgress}></div>
         <div className={styles.bar__playerBlock}>
@@ -40,10 +48,27 @@ export default function Bar() {
                     <use xlinkHref="/img/icon/sprite.svg#icon-prev"></use>
                 </svg>
                 </div>
-                <div className={classnames(styles.player__btnPlay, styles.btn)} onClick={playTrack}>
-                <svg className={styles.player__btnPlaySvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-play"></use>
-                </svg>
+                <div 
+                    className={classnames(styles.player__btnPlay, styles.btn)} 
+                    onClick={isPlay ? pauseTrack : playTrack}
+                    >
+                    {isPlay ? (
+                        <svg 
+                        className={styles.player__btnPlaySvg} 
+                        width="15" 
+                        height="19" 
+                        viewBox="0 0 15 19" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        >
+                        <rect width="5" height="19" fill="#D9D9D9"/>
+                        <rect x="10" width="5" height="19" fill="#D9D9D9"/>
+                        </svg>
+                    ) : (
+                        <svg className={styles.player__btnPlaySvg}>
+                        <use xlinkHref="/img/icon/sprite.svg#icon-play"></use>
+                        </svg>
+                    )}
                 </div>
                 <div className={styles.player__btnNext}>
                 <svg className={styles.player__btnNextSvg}>
@@ -71,12 +96,12 @@ export default function Bar() {
                 </div>
                 <div className={styles.trackPlay__author}>
                     <Link className={styles.trackPlay__authorLink} href="">
-                    Ты та...
+                    {currentTrack.name} 
                     </Link>
                 </div>
                 <div className={styles.trackPlay__album}>
                     <Link className={styles.trackPlay__albumLink} href="">
-                    Баста
+                    {currentTrack.author}
                     </Link>
                 </div>
                 </div>

@@ -69,6 +69,27 @@
   stroke: #4e4e4e;
 }
 
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}
+
+.track__titleSvg--active {
+  stroke: none;          
+  fill: #B672FF;          
+  color: #B672FF;
+}
+
+.track__titleSvg--pulsing {
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
 .track__titleLink {
   font-style: normal;
   font-weight: 400;
