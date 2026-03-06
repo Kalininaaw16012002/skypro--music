@@ -1,5 +1,10 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux';
+import {
+  TypedUseSelectorHook,
+  useDispatch,
+  useSelector,
+  useStore,
+} from 'react-redux';
 import { trackSliceReducer } from './features/trackSlice';
 
 export const makeStore = () => {

@@ -15,11 +15,19 @@ interface FilterProps {
 
 export default function Filter({ tracks }: FilterProps) {
   const [filterActiv, setFilterActiv] = useState<FilterType>(null);
-  const [selectedValues, setSelectedValues] = useState<Record<string, boolean>>({});
+  const [selectedValues, setSelectedValues] = useState<Record<string, boolean>>(
+    {},
+  );
 
-  const authors = useMemo(() => getUniqueValuesByKey(tracks, 'author').sort(), [tracks]);
+  const authors = useMemo(
+    () => getUniqueValuesByKey(tracks, 'author').sort(),
+    [tracks],
+  );
   const years = useMemo(() => formatYears(tracks), [tracks]);
-  const genres = useMemo(() => getUniqueValuesByKey(tracks, 'genre').sort(), [tracks]);
+  const genres = useMemo(
+    () => getUniqueValuesByKey(tracks, 'genre').sort(),
+    [tracks],
+  );
 
   const handleFilterClick = (filterName: FilterType) => {
     setFilterActiv((prev) => {
@@ -66,7 +74,9 @@ export default function Filter({ tracks }: FilterProps) {
 
       <div className={styles.filterButtonWrapper}>
         <div
-          className={classNames(styles.filter__button, { [styles.active]: filterActiv === 'author' })}
+          className={classNames(styles.filter__button, {
+            [styles.active]: filterActiv === 'author',
+          })}
           onClick={() => handleFilterClick('author')}
         >
           исполнителю
@@ -76,7 +86,9 @@ export default function Filter({ tracks }: FilterProps) {
 
       <div className={styles.filterButtonWrapper}>
         <div
-          className={classNames(styles.filter__button, { [styles.active]: filterActiv === 'year' })}
+          className={classNames(styles.filter__button, {
+            [styles.active]: filterActiv === 'year',
+          })}
           onClick={() => handleFilterClick('year')}
         >
           году выпуска
@@ -86,7 +98,9 @@ export default function Filter({ tracks }: FilterProps) {
 
       <div className={styles.filterButtonWrapper}>
         <div
-          className={classNames(styles.filter__button, { [styles.active]: filterActiv === 'genre' })}
+          className={classNames(styles.filter__button, {
+            [styles.active]: filterActiv === 'genre',
+          })}
           onClick={() => handleFilterClick('genre')}
         >
           жанру

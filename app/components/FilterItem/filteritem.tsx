@@ -9,7 +9,11 @@ interface FilterItemProps {
   onClick?: () => void;
 }
 
-export default function FilterItem({ text, isActive = false, onClick }: FilterItemProps) {
+export default function FilterItem({
+  text,
+  isActive = false,
+  onClick,
+}: FilterItemProps) {
   return (
     <div
       className={classNames(styles.filter__item, { [styles.active]: isActive })}
