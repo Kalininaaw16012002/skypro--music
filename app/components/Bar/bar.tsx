@@ -4,14 +4,32 @@ import classnames from 'classnames';
 import Link from 'next/link';
 import styles from './bar.module.css';
 import { useAppDispatch, useAppSelector } from '@/app/store/store';
-import { useEffect, useRef } from 'react';
-import { setIsPlay } from '@/app/store/features/trackSlice';
+import {
+  ChangeEvent,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  setIsPlay,
+  setNextTrack,
+  toogleShuffle,
+} from '@/app/store/features/trackSlice';
+import ProgressBar from '../Progress/progress';
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
   const dispatch = useAppDispatch();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isLoop, setIsLoop] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [isLoadedTrack, setIsLoadedTrack] = useState(false);
+
+  useEffect(() => {
+    setIsLoadedTrack(false);
+  }, [currentTrack]);
 
   useEffect(() => {
     if (currentTrack && isPlay && audioRef.current) {
@@ -35,11 +53,60 @@ export default function Bar() {
     }
   };
 
+  const onToggleLoop = () => {
+    setIsLoop(!isLoop);
+  };
+
+  const onTimeUpdate = () => {
+    if (audioRef.current) {
+      //   console.log(audioRef.current.currentTime);
+      //   console.log(audioRef.current.duration);
+      console.log(audioRef.current.volume);
+    }
+  };
+
+  const onLoadedMetadata = () => {
+    console.log('start');
+    if (audioRef.current) {
+      audioRef.current.play();
+      dispatch(setIsPlay(true));
+    }
+  };
+
+  const onCangeProgress = (e: ChangeEvent<HTMLInputElement, Element>) => {
+    if (audioRef.current) {
+      const inputTime = Number(e.target.value);
+
+      audioRef.current.currentTime = inputTime;
+    }
+  };
+
+  const onNextTrack = () => {
+    dispatch(setNextTrack());
+  };
+
+  const onToogleShuffle = () => {
+    dispatch(toogleShuffle());
+  };
+
   return (
     <div className={styles.bar}>
-      <audio ref={audioRef} src={currentTrack?.track_file}></audio>
+      <audio
+        ref={audioRef}
+        src={currentTrack?.track_file}
+        loop={true}
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoadedMetadata}
+        onEnded={() => console.log('Next track')}
+      ></audio>
       <div className={styles.bar__content}>
-        <div className={styles.bar__playerProgress}></div>
+        <ProgressBar
+          max={audioRef.current?.duration || 0}
+          step={0.1}
+          readOnly={!isLoadedTrack}
+          value={11}
+          onChange={onCangeProgress}
+        />
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
             <div className={styles.player__controls}>
@@ -70,12 +137,13 @@ export default function Bar() {
                   </svg>
                 )}
               </div>
-              <div className={styles.player__btnNext}>
+              <div onClick={onNextTrack} className={styles.player__btnNext}>
                 <svg className={styles.player__btnNextSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-next"></use>
                 </svg>
               </div>
               <div
+                onClick={onToggleLoop}
                 className={classnames(styles.player__btnRepeat, styles.btnIcon)}
               >
                 <svg className={styles.player__btnRepeatSvg}>
@@ -87,6 +155,7 @@ export default function Bar() {
                   styles.player__btnShuffle,
                   styles.btnIcon,
                 )}
+                onClick={onToogleShuffle}
               >
                 <svg className={styles.player__btnShuffleSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-shuffle"></use>
@@ -152,6 +221,9 @@ export default function Bar() {
                   )}
                   type="range"
                   name="range"
+                  onChange={(e) => {
+                    setVolume(Number(e.target.value));
+                  }}
                 />
               </div>
             </div>
