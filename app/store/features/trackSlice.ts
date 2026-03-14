@@ -17,6 +17,10 @@ const initialState: initialStateType = {
   isShuffle: false,
 };
 
+const shuffleArray = (array: TrackType[]): TrackType[] => {
+  return [...array].sort(() => Math.random() - 0.5);
+};
+
 const trackSlice = createSlice({
   name: 'tracks',
   initialState,
@@ -26,40 +30,63 @@ const trackSlice = createSlice({
     },
     setCurrentPlaylist: (state, action: PayloadAction<TrackType[]>) => {
       state.playlist = action.payload;
-      state.shuffledPlaylist = [...action.payload].sort(
-        () => Math.random() - 0.5,
-      );
+      state.shuffledPlaylist = shuffleArray(action.payload);
     },
     setIsPlay: (state, action: PayloadAction<boolean>) => {
       state.isPlay = action.payload;
     },
     toogleShuffle: (state) => {
       state.isShuffle = !state.isShuffle;
+      if (
+        state.isShuffle &&
+        state.shuffledPlaylist.length === 0 &&
+        state.playlist.length > 0
+      ) {
+        state.shuffledPlaylist = shuffleArray(state.playlist);
+      }
     },
     setNextTrack: (state) => {
       const playlist = state.isShuffle
         ? state.shuffledPlaylist
         : state.playlist;
+      if (playlist.length === 0) return;
       const curIndex = playlist.findIndex(
         (el) => el._id === state.currentTrack?._id,
       );
+      if (curIndex === -1) {
+        state.currentTrack = playlist[0];
+        state.isPlay = true;
+        return;
+      }
       const nextIndexTrack = curIndex + 1;
       if (nextIndexTrack < playlist.length) {
         state.currentTrack = playlist[nextIndexTrack];
-        state.isPlay = true;
       } else {
-        state.isPlay = false;
+        state.currentTrack = playlist[0];
       }
+      state.isPlay = true;
     },
     setPrevTrack: (state) => {
       const playlist = state.isShuffle
         ? state.shuffledPlaylist
         : state.playlist;
+      if (playlist.length === 0 || !state.currentTrack) return;
       const curIndex = playlist.findIndex(
         (el) => el._id === state.currentTrack?._id,
       );
+      if (curIndex === -1) {
+        state.currentTrack = playlist[0];
+        state.isPlay = true;
+        return;
+      }
       const prevIndexTrack = curIndex - 1;
-      state.currentTrack = playlist[prevIndexTrack];
+      if (prevIndexTrack < 0) {
+        state.currentTrack = playlist[playlist.length - 1];
+      } else {
+        state.currentTrack = playlist[prevIndexTrack];
+      }
+
+      state.isPlay = true;
     },
   },
 });
