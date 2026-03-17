@@ -5,13 +5,21 @@ import styles from './track.module.css';
 import Link from 'next/link';
 import { formatTime } from '@/app/utils/helper';
 import { useAppDispatch, useAppSelector } from '@/app/store/store';
-import { setCurrentTrack, setIsPlay } from '@/app/store/features/trackSlice';
+import { setCurrentPlaylist, setCurrentTrack, setIsPlay } from '@/app/store/features/trackSlice';
 import { TrackType } from '@/app/sharedTypes/sharedTypes';
+import { useEffect } from 'react';
 
 export default function Track() {
   const dispatch = useAppDispatch();
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
+  const playlist = useAppSelector((state) => state.tracks.playlist);
+
+  useEffect(() => {
+    if (playlist.length === 0) {
+      dispatch(setCurrentPlaylist(data));
+    }
+  }, [dispatch, playlist.length]);
 
   const onClickTrack = (track: TrackType) => {
     const isSameTrack = currentTrack?._id === track._id;
@@ -22,7 +30,7 @@ export default function Track() {
 
   return (
     <div className={styles.content__playlist}>
-      {data.map((track) => {
+      {playlist.map((track) => {
         const isCurrent = Boolean(
           currentTrack && currentTrack._id === track._id,
         );
