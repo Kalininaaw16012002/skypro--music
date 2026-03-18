@@ -7,6 +7,9 @@ type initialStateType = {
   playlist: TrackType[];
   shuffledPlaylist: TrackType[];
   isShuffle: boolean;
+  loading: boolean;
+  error: string | null;
+  pageTitle: string;
 };
 
 const initialState: initialStateType = {
@@ -15,6 +18,9 @@ const initialState: initialStateType = {
   playlist: [],
   shuffledPlaylist: [],
   isShuffle: false,
+  loading: false,
+  error: null,
+  pageTitle: 'Треки',
 };
 
 const shuffleArray = (array: TrackType[]): TrackType[] => {
@@ -31,6 +37,18 @@ const trackSlice = createSlice({
     setCurrentPlaylist: (state, action: PayloadAction<TrackType[]>) => {
       state.playlist = action.payload;
       state.shuffledPlaylist = shuffleArray(action.payload);
+      state.loading = false;
+      state.error = null;
+    },
+    setPageTitle: (state, action: PayloadAction<string>) => {
+      state.pageTitle = action.payload;
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+      state.loading = false;
     },
     setIsPlay: (state, action: PayloadAction<boolean>) => {
       state.isPlay = action.payload;
@@ -95,6 +113,9 @@ export const {
   setCurrentTrack,
   setIsPlay,
   setCurrentPlaylist,
+  setPageTitle,
+  setLoading,
+  setError,
   setNextTrack,
   setPrevTrack,
   toogleShuffle,

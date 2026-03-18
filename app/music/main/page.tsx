@@ -1,21 +1,33 @@
-import MainNav from '@/app/components/MainNav/mainnav';
-import styles from './page.module.css';
-import CenterBlock from '@/app/components/CenterBlock/centerblock';
-import MainSidebar from '@/app/components/MainSidebar/mainsidebar';
-import Bar from '@/app/components/Bar/bar';
+'use client';
 
-export default function Home() {
-  return (
-    <div className={styles.wrapper}>
-      <div className={styles.container}>
-        <main className={styles.main}>
-          <MainNav />
-          <CenterBlock />
-          <MainSidebar />
-        </main>
-        <Bar />
-        <footer className="footer"></footer>
-      </div>
-    </div>
-  );
+import { useEffect } from 'react';
+import { useAppDispatch } from '@/app/store/store';
+import {
+  setPageTitle,
+  setLoading,
+  setError,
+  setCurrentPlaylist,
+} from '@/app/store/features/trackSlice';
+import { getTracks } from '@/app/services/tracks/tracksApi';
+import TrackLayout from '@/app/components/TrackLayot/tracklayot';
+
+export default function MainPage() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setPageTitle('Треки'));
+    dispatch(setError(null));
+    dispatch(setLoading(true));
+
+    getTracks()
+      .then((data) => {
+        dispatch(setCurrentPlaylist(data));
+      })
+      .catch((err) => {
+        console.error('Ошибка загрузки треков:', err);
+        dispatch(setError('Не удалось загрузить треки'));
+      });
+  }, [dispatch]);
+
+  return <TrackLayout />;
 }

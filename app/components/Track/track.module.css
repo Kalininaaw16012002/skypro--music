@@ -9,6 +9,18 @@
   overflow-y: auto;
 }
 
+.content__loading {
+  align-content: center;
+  padding: 20px;
+  color: #fff;
+}
+
+.content__error {
+  align-content: center;
+  padding: 20px;
+  color: #fff;
+}
+
 .playlist__item {
   width: 100%;
   display: block;
@@ -70,7 +82,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -81,9 +94,9 @@
 }
 
 .track__titleSvg--active {
-  stroke: none;          
-  fill: #B672FF;          
-  color: #B672FF;
+  stroke: none;
+  fill: #b672ff;
+  color: #b672ff;
 }
 
 .track__titleSvg--pulsing {

@@ -1,32 +1,29 @@
 'use client';
 
-import { TrackType } from '@/app/sharedTypes/sharedTypes';
 import { formatYears, getUniqueValuesByKey } from '@/app/utils/helper';
 import styles from './filter.module.css';
 import classNames from 'classnames';
 import { useMemo, useState } from 'react';
 import FilterItem from '../FilterItem/filteritem';
+import { useAppSelector } from '@/app/store/store';
 
 type FilterType = 'author' | 'year' | 'genre' | null;
 
-interface FilterProps {
-  tracks: TrackType[];
-}
-
-export default function Filter({ tracks }: FilterProps) {
+export default function Filter() {
   const [filterActiv, setFilterActiv] = useState<FilterType>(null);
   const [selectedValues, setSelectedValues] = useState<Record<string, boolean>>(
     {},
   );
+  const playlist = useAppSelector((state) => state.tracks.playlist);
 
   const authors = useMemo(
-    () => getUniqueValuesByKey(tracks, 'author').sort(),
-    [tracks],
+    () => getUniqueValuesByKey(playlist, 'author').sort(),
+    [playlist],
   );
-  const years = useMemo(() => formatYears(tracks), [tracks]);
+  const years = useMemo(() => formatYears(playlist), [playlist]);
   const genres = useMemo(
-    () => getUniqueValuesByKey(tracks, 'genre').sort(),
-    [tracks],
+    () => getUniqueValuesByKey(playlist, 'genre').sort(),
+    [playlist],
   );
 
   const handleFilterClick = (filterName: FilterType) => {
