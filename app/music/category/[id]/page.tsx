@@ -13,8 +13,8 @@ import { getTracksByCategory } from '@/app/services/tracks/tracksApi';
 import TrackLayout from '@/app/components/TrackLayot/tracklayot';
 
 const CATEGORY_TITLES: Record<string, string> = {
-  '4': 'Инди заряд',
-  '3': 'Танцевальные хиты',
+  '4': 'Инди-заряд',
+  '3': '100 танцевальных хитов',
   '2': 'Плейлист дня',
 };
 

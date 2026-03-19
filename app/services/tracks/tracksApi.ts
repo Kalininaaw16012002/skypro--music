@@ -52,6 +52,6 @@ export const getTracksByCategory = async (
     return allTracks.filter((track) => trackIdsSet.has(String(track._id)));
   } catch (error) {
     console.error(`Ошибка при загрузке категории ${categoryId}:`, error);
-    return [];
+    throw error;
   }
 };

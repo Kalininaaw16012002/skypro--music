@@ -4,6 +4,7 @@
   gap: 10px;
   margin-bottom: 51px;
   position: relative;
+  flex-shrink: 0;
 }
 
 .filterButtonWrapper {
