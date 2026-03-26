@@ -10,6 +10,7 @@ type initialStateType = {
   loading: boolean;
   error: string | null;
   pageTitle: string;
+  allTracks: TrackType[];  
 };
 
 const initialState: initialStateType = {
@@ -21,6 +22,7 @@ const initialState: initialStateType = {
   loading: false,
   error: null,
   pageTitle: 'Треки',
+  allTracks: [],
 };
 
 const shuffleArray = (array: TrackType[]): TrackType[] => {
@@ -33,6 +35,9 @@ const trackSlice = createSlice({
   reducers: {
     setCurrentTrack: (state, action: PayloadAction<TrackType>) => {
       state.currentTrack = action.payload;
+    },
+     setAllTracks: (state, action: PayloadAction<TrackType[]>) => {
+      state.allTracks = action.payload;
     },
     setCurrentPlaylist: (state, action: PayloadAction<TrackType[]>) => {
       state.playlist = action.payload;
@@ -119,5 +124,6 @@ export const {
   setNextTrack,
   setPrevTrack,
   toogleShuffle,
+  setAllTracks,  
 } = trackSlice.actions;
 export const trackSliceReducer = trackSlice.reducer;
