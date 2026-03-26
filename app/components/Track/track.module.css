@@ -7,12 +7,48 @@
   -ms-flex-direction: column;
   flex-direction: column;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  padding-right: 8px;
+  margin-right: -8px;
+  scrollbar-gutter: stable; 
+}
+
+.content__playlist::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content__playlist::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content__playlist::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.content__playlist::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.content__loading {
+  align-content: center;
+  padding: 20px;
+  color: #fff;
+}
+
+.content__error {
+  align-content: center;
+  padding: 20px;
+  color: #fff;
 }
 
 .playlist__item {
   width: 100%;
   display: block;
   margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .playlist__track {
@@ -70,7 +106,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -81,9 +118,9 @@
 }
 
 .track__titleSvg--active {
-  stroke: none;          
-  fill: #B672FF;          
-  color: #B672FF;
+  stroke: none;
+  fill: #b672ff;
+  color: #b672ff;
 }
 
 .track__titleSvg--pulsing {

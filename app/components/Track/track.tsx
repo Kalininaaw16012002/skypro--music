@@ -1,25 +1,19 @@
 'use client';
 
-import { data } from '@/data';
 import styles from './track.module.css';
 import Link from 'next/link';
 import { formatTime } from '@/app/utils/helper';
 import { useAppDispatch, useAppSelector } from '@/app/store/store';
-import { setCurrentPlaylist, setCurrentTrack, setIsPlay } from '@/app/store/features/trackSlice';
+import { setCurrentTrack, setIsPlay } from '@/app/store/features/trackSlice';
 import { TrackType } from '@/app/sharedTypes/sharedTypes';
-import { useEffect } from 'react';
 
 export default function Track() {
   const dispatch = useAppDispatch();
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
   const playlist = useAppSelector((state) => state.tracks.playlist);
-
-  useEffect(() => {
-    if (playlist.length === 0) {
-      dispatch(setCurrentPlaylist(data));
-    }
-  }, [dispatch, playlist.length]);
+  const loading = useAppSelector((state) => state.tracks.loading);
+  const error = useAppSelector((state) => state.tracks.error);
 
   const onClickTrack = (track: TrackType) => {
     const isSameTrack = currentTrack?._id === track._id;
@@ -27,6 +21,22 @@ export default function Track() {
     dispatch(setCurrentTrack(track));
     dispatch(setIsPlay(!isSameTrack || !isPlay));
   };
+
+  if (loading && playlist.length === 0) {
+    return (
+      <div className={styles.content__playlist}>
+        <div className={styles.content__loading}>Загрузка...</div>
+      </div>
+    );
+  }
+
+  if (error && playlist.length === 0) {
+    return (
+      <div className={styles.content__playlist}>
+        <div className={styles.content__error}>{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.content__playlist}>
