@@ -2,7 +2,11 @@
 
 import { useEffect } from 'react';
 import { useAppDispatch } from '../store/store';
-import { setAccess, setRefresh, setUserName } from '../store/features/authSlice';
+import {
+  setAccess,
+  setRefresh,
+  setUserName,
+} from '../store/features/authSlice';
 
 export const useInitAuth = () => {
   const dispatch = useAppDispatch();
@@ -15,7 +19,7 @@ export const useInitAuth = () => {
     if (access && refresh) {
       dispatch(setAccess(access));
       dispatch(setRefresh(refresh));
-      
+
       if (userName) {
         try {
           const userData = JSON.parse(userName);

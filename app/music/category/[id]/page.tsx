@@ -8,14 +8,17 @@ import {
   setCurrentPlaylist,
   setLoading,
   setError,
+  setFavoriteTracks,
 } from '@/app/store/features/trackSlice';
 import { getTrackIdsByCategory } from '@/app/services/tracks/tracksApi';
+import { getFavoriteTracks } from '@/app/services/tracks/tracksApi';
 import TrackLayout from '@/app/components/TrackLayot/tracklayot';
 
 const CATEGORY_TITLES: Record<string, string> = {
   '4': 'Индизаряд',
   '3': '100 танцевальных хитов',
   '2': 'Плейлист дня',
+  favorite: 'Мой плейлист',
 };
 
 export default function CategoryPage() {
@@ -24,6 +27,7 @@ export default function CategoryPage() {
   const categoryId = params?.id;
 
   const allTracks = useAppSelector((state) => state.tracks.allTracks);
+  const { access } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     if (!categoryId) return;
@@ -32,6 +36,30 @@ export default function CategoryPage() {
     dispatch(setPageTitle(title));
     dispatch(setError(null));
     dispatch(setLoading(true));
+    if (categoryId === 'favorite') {
+      if (!access) {
+        dispatch(setError('Необходимо войти в систему'));
+        dispatch(setLoading(false));
+        dispatch(setCurrentPlaylist([]));
+        return;
+      }
+
+      getFavoriteTracks(access)
+        .then((tracks) => {
+          dispatch(setFavoriteTracks(tracks));
+          dispatch(setCurrentPlaylist(tracks));
+        })
+        .catch((err) => {
+          console.error('Ошибка загрузки избранного:', err);
+          dispatch(setError('Не удалось загрузить плейлист'));
+          dispatch(setCurrentPlaylist([]));
+        })
+        .finally(() => {
+          dispatch(setLoading(false));
+        });
+
+      return;
+    }
 
     getTrackIdsByCategory(categoryId)
       .then((trackIds) => {
@@ -49,6 +77,7 @@ export default function CategoryPage() {
       .finally(() => {
         dispatch(setLoading(false));
       });
-  }, [dispatch, categoryId, allTracks]);
+  }, [dispatch, categoryId, allTracks, access]);
+
   return <TrackLayout />;
 }
