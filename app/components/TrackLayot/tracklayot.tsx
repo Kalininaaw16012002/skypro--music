@@ -5,12 +5,14 @@ import CenterBlock from '@/app/components/CenterBlock/centerblock';
 import MainSidebar from '@/app/components/MainSidebar/mainsidebar';
 import Bar from '@/app/components/Bar/bar';
 import styles from './tracklayot.module.css';
+import { useInitAuth } from '@/app/hooks/useInitAuh';
 
 interface TrackLayoutProps {
   children?: React.ReactNode;
 }
 
 export default function TrackLayout({ children }: TrackLayoutProps) {
+  useInitAuth();
   return (
     <div className={styles.wrapper}>
       <div className={styles.container}>

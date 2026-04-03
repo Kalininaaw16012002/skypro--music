@@ -4,12 +4,7 @@ import classnames from 'classnames';
 import Link from 'next/link';
 import styles from './bar.module.css';
 import { useAppDispatch, useAppSelector } from '@/app/store/store';
-import {
-  ChangeEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import {
   setIsPlay,
   setNextTrack,
@@ -18,6 +13,7 @@ import {
 } from '@/app/store/features/trackSlice';
 import ProgressBar from '../Progress/progress';
 import { formatTime } from '@/app/utils/helper';
+import { useLikeTrack } from '@/app/hooks/useLikeTracks';
 
 export default function Bar() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
@@ -31,6 +27,8 @@ export default function Bar() {
   const [duration, setDuration] = useState(0);
   const [isLoadedTrack, setIsLoadedTrack] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+
+  const { isLike, toggleLike, isLoading } = useLikeTrack(currentTrack);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -87,20 +85,14 @@ export default function Bar() {
 
   const onChangeProgress = (e: ChangeEvent<HTMLInputElement>) => {
     const newTime = Number(e.target.value);
-
     if (audioRef.current) {
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
     }
   };
 
-  const onPrevTrack = () => {
-    dispatch(setPrevTrack());
-  };
-
-  const onNextTrack = () => {
-    dispatch(setNextTrack());
-  };
+  const onPrevTrack = () => dispatch(setPrevTrack());
+  const onNextTrack = () => dispatch(setNextTrack());
 
   const onToggleLoop = () => {
     setIsLoop(!isLoop);
@@ -109,26 +101,25 @@ export default function Bar() {
     }
   };
 
-  const onToggleShuffle = () => {
-    dispatch(toogleShuffle());
-  };
+  const onToggleShuffle = () => dispatch(toogleShuffle());
 
   const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newVolume = Number(e.target.value);
     setVolume(newVolume);
-
-    if (newVolume > 0 && isMuted) {
-      setIsMuted(false);
-    }
-    if (newVolume === 0) {
-      setIsMuted(true);
-    }
+    if (newVolume > 0 && isMuted) setIsMuted(false);
+    if (newVolume === 0) setIsMuted(true);
   };
 
   const toggleMute = () => {
     setIsMuted(!isMuted);
-    if (isMuted && volume === 0) {
-      setVolume(0.5);
+    if (isMuted && volume === 0) setVolume(0.5);
+  };
+
+  const handleLikeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLoading && currentTrack) {
+      toggleLike();
     }
   };
 
@@ -141,13 +132,15 @@ export default function Bar() {
         onTimeUpdate={onTimeUpdate}
         onLoadedMetadata={onLoadedMetadata}
         onEnded={onNextTrack}
-      ></audio>
+      />
+
       <div className={styles.bar__content}>
         {!isLoadedTrack && (
           <div className={styles.loading__indicator}>
             <span>Трек загружается...</span>
           </div>
         )}
+
         <div className={styles.progress__container}>
           <ProgressBar
             max={duration || 0}
@@ -156,13 +149,13 @@ export default function Bar() {
             readOnly={!isLoadedTrack}
             onChange={onChangeProgress}
           />
-
           <div className={styles.progress__timing}>
             <span>{formatTime(currentTime)}</span>
             <span>/</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
+
         <div className={styles.bar__playerBlock}>
           <div className={styles.bar__player}>
             <div className={styles.player__controls}>
@@ -171,6 +164,7 @@ export default function Bar() {
                   <use xlinkHref="/img/icon/sprite.svg#icon-prev"></use>
                 </svg>
               </div>
+
               <div
                 className={classnames(styles.player__btnPlay, styles.btn)}
                 onClick={isPlay ? pauseTrack : playTrack}
@@ -182,7 +176,6 @@ export default function Bar() {
                     height="19"
                     viewBox="0 0 15 19"
                     fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
                   >
                     <rect width="5" height="19" fill="#D9D9D9" />
                     <rect x="10" width="5" height="19" fill="#D9D9D9" />
@@ -193,11 +186,13 @@ export default function Bar() {
                   </svg>
                 )}
               </div>
+
               <div onClick={onNextTrack} className={styles.player__btnNext}>
                 <svg className={styles.player__btnNextSvg}>
                   <use xlinkHref="/img/icon/sprite.svg#icon-next"></use>
                 </svg>
               </div>
+
               <div
                 onClick={onToggleLoop}
                 className={classnames(
@@ -212,6 +207,7 @@ export default function Bar() {
                   <use xlinkHref="/img/icon/sprite.svg#icon-repeat"></use>
                 </svg>
               </div>
+
               <div
                 className={classnames(
                   styles.player__btnShuffle,
@@ -246,31 +242,31 @@ export default function Bar() {
                   </Link>
                 </div>
               </div>
-
-              <div className={styles.trackPlay__dislike}>
-                <div
+              <div className={styles.trackPlay__actions}>
+                <button
+                  type="button"
                   className={classnames(
-                    styles.player__btnShuffle,
+                    styles.trackPlay__likeBtn,
                     styles.btnIcon,
+                    {
+                      [styles.active]: isLike,
+                      [styles.loading]: isLoading,
+                    },
                   )}
+                  onClick={handleLikeClick}
+                  disabled={isLoading}
+                  aria-label={
+                    isLike ? 'Убрать из избранного' : 'Добавить в избранное'
+                  }
                 >
                   <svg className={styles.trackPlay__likeSvg}>
                     <use xlinkHref="/img/icon/sprite.svg#icon-like"></use>
                   </svg>
-                </div>
-                <div
-                  className={classnames(
-                    styles.trackPlay__dislike,
-                    styles.btnIcon,
-                  )}
-                >
-                  <svg className={styles.trackPlay__dislikeSvg}>
-                    <use xlinkHref="/img/icon/sprite.svg#icon-dislike"></use>
-                  </svg>
-                </div>
+                </button>
               </div>
             </div>
           </div>
+
           <div className={styles.bar__volumeBlock}>
             <div className={styles.volume__content}>
               <div onClick={toggleMute} className={styles.volume__image}>

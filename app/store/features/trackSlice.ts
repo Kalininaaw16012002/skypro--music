@@ -10,6 +10,8 @@ type initialStateType = {
   loading: boolean;
   error: string | null;
   pageTitle: string;
+  allTracks: TrackType[];
+  favoriteTracks: TrackType[];
 };
 
 const initialState: initialStateType = {
@@ -21,6 +23,8 @@ const initialState: initialStateType = {
   loading: false,
   error: null,
   pageTitle: 'Треки',
+  allTracks: [],
+  favoriteTracks: [],
 };
 
 const shuffleArray = (array: TrackType[]): TrackType[] => {
@@ -33,6 +37,36 @@ const trackSlice = createSlice({
   reducers: {
     setCurrentTrack: (state, action: PayloadAction<TrackType>) => {
       state.currentTrack = action.payload;
+    },
+    setAllTracks: (state, action: PayloadAction<TrackType[]>) => {
+      state.allTracks = action.payload;
+    },
+    setFavoriteTracks: (state, action: PayloadAction<TrackType[]>) => {
+      state.favoriteTracks = action.payload;
+    },
+    addLikedTracks: (state, action: PayloadAction<TrackType>) => {
+      const newTrack = action.payload;
+      const exists = state.favoriteTracks.some(
+        (track) => track._id === newTrack._id,
+      );
+      if (!exists) {
+        state.favoriteTracks.push(newTrack);
+      }
+    },
+    removeLikedTracks: (state, action: PayloadAction<string | number>) => {
+      const trackId = String(action.payload);
+
+      state.favoriteTracks = state.favoriteTracks.filter(
+        (track) => String(track._id) !== trackId,
+      );
+
+      state.playlist = state.playlist.filter(
+        (track) => String(track._id) !== trackId,
+      );
+
+      state.shuffledPlaylist = state.shuffledPlaylist.filter(
+        (track) => String(track._id) !== trackId,
+      );
     },
     setCurrentPlaylist: (state, action: PayloadAction<TrackType[]>) => {
       state.playlist = action.payload;
@@ -119,5 +153,10 @@ export const {
   setNextTrack,
   setPrevTrack,
   toogleShuffle,
+  setAllTracks,
+  setFavoriteTracks,
+  addLikedTracks,
+  removeLikedTracks,
 } = trackSlice.actions;
+
 export const trackSliceReducer = trackSlice.reducer;

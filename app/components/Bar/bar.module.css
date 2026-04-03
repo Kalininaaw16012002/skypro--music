@@ -415,3 +415,51 @@
     content: '...';
   }
 }
+
+.trackPlay__actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.trackPlay__likeBtn {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer !important;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.trackPlay__likeBtn svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.trackPlay__likeBtn.active {
+  color: #9d50ff;
+}
+
+.trackPlay__likeBtn.active svg {
+  fill: #9d50ff;
+}
+
+.trackPlay__likeBtn:hover:not(.loading) {
+  transform: scale(1.15);
+  opacity: 0.9;
+}
+
+.trackPlay__likeBtn.loading {
+  cursor: wait !important;
+  opacity: 0.5;
+  pointer-events: none;
+}

@@ -2,22 +2,33 @@ import Link from 'next/link';
 import styles from './mainsidebar.module.css';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/app/store/store';
+import { clearAuth } from '@/app/store/features/authSlice';
 
 export default function MainSidebar() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  const userName = useAppSelector((state) => state.auth.userName);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
+    dispatch(clearAuth());
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    
     router.push('/auth/signin');
     router.refresh();
   };
+
   return (
     <div className={styles.main__sidebar}>
       <div className={styles.sidebar__personal}>
-        <p className={styles.sidebar__personalName}>Sergey.Ivanov</p>
-        <div className={styles.sidebar__icon}  onClick={handleLogout}>
+        <p className={styles.sidebar__personalName}>
+          {userName || 'Пользователь'}
+        </p>
+        <div className={styles.sidebar__icon} onClick={handleLogout}>
           <svg>
             <use xlinkHref="/img/icon/sprite.svg#logout"></use>
           </svg>

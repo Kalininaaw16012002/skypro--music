@@ -28,6 +28,24 @@ type registerUserResponse = {
   success: boolean;
 };
 
+type GetTokenProps = {
+  email: string;
+  password: string;
+};
+
+type GetTokenResponse = {
+  refresh: string;
+  access: string;
+};
+
+type RefreshTokenProps = {
+  refresh: string;
+};
+
+type RefreshTokenResponse = {
+  access: string;
+};
+
 export const authUser = async (
   data: authUserProps,
 ): Promise<authUserReturn> => {
@@ -52,6 +70,36 @@ export const registerUser = async (
     data,
     {
       headers: { 'content-type': 'application/json' },
+    },
+  );
+  return response.data;
+};
+
+export const getToken = async (
+  data: GetTokenProps,
+): Promise<GetTokenResponse> => {
+  const response = await axios.post<GetTokenResponse>(
+    BASE_URL + '/user/token/',
+    data,
+    {
+      headers: {
+        'content-type': 'application/json',
+      },
+    },
+  );
+  return response.data;
+};
+
+export const refreshToken = async (
+  data: RefreshTokenProps,
+): Promise<RefreshTokenResponse> => {
+  const response = await axios.post<RefreshTokenResponse>(
+    BASE_URL + '/user/token/refresh/',
+    data,
+    {
+      headers: {
+        'content-type': 'application/json',
+      },
     },
   );
   return response.data;
