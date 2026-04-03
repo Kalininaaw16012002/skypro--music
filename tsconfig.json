@@ -23,7 +23,8 @@
       "@/*": ["./*"],
       "@components/*": ["components/*"],
       "@utils/*": ["utils/*"]
-    }
+    },
+    "types": ["node"] 
   },
   "include": [
     "next-env.d.ts",
