@@ -7,7 +7,7 @@ import TrackItem from './TrackItem';
 export default function Track() {
   const currentTrack = useAppSelector((state) => state.tracks.currentTrack);
   const isPlay = useAppSelector((state) => state.tracks.isPlay);
-  const playlist = useAppSelector((state) => state.tracks.playlist);
+  const playlist = useAppSelector((state) => state.tracks.filteredPlaylist);
   const loading = useAppSelector((state) => state.tracks.loading);
   const error = useAppSelector((state) => state.tracks.error);
 

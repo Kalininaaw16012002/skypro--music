@@ -9,9 +9,13 @@ import {
   setLoading,
   setError,
   setFavoriteTracks,
+  setAllTracks,
 } from '@/app/store/features/trackSlice';
-import { getTrackIdsByCategory } from '@/app/services/tracks/tracksApi';
-import { getFavoriteTracks } from '@/app/services/tracks/tracksApi';
+import {
+  getTrackIdsByCategory,
+  getFavoriteTracks,
+  getTracks,
+} from '@/app/services/tracks/tracksApi';
 import TrackLayout from '@/app/components/TrackLayot/tracklayot';
 
 const CATEGORY_TITLES: Record<string, string> = {
@@ -36,6 +40,7 @@ export default function CategoryPage() {
     dispatch(setPageTitle(title));
     dispatch(setError(null));
     dispatch(setLoading(true));
+
     if (categoryId === 'favorite') {
       if (!access) {
         dispatch(setError('Необходимо войти в систему'));
@@ -61,23 +66,34 @@ export default function CategoryPage() {
       return;
     }
 
-    getTrackIdsByCategory(categoryId)
-      .then((trackIds) => {
+    const loadCategoryTracks = async () => {
+      try {
+        let tracksToFilter = allTracks;
+        if (allTracks.length === 0) {
+          const all = await getTracks();
+          dispatch(setAllTracks(all));
+          tracksToFilter = all;
+        }
+
+        const trackIds = await getTrackIdsByCategory(categoryId);
         const trackIdsSet = new Set(trackIds.map((id) => String(id)));
-        const filteredTracks = allTracks.filter((track) =>
+
+        const filteredTracks = tracksToFilter.filter((track) =>
           trackIdsSet.has(String(track._id)),
         );
 
         dispatch(setCurrentPlaylist(filteredTracks));
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('Ошибка загрузки категории:', err);
         dispatch(setError('Не удалось загрузить подборку'));
-      })
-      .finally(() => {
+        dispatch(setCurrentPlaylist([]));
+      } finally {
         dispatch(setLoading(false));
-      });
-  }, [dispatch, categoryId, allTracks, access]);
+      }
+    };
+
+    loadCategoryTracks();
+  }, [dispatch, categoryId, access]);
 
   return <TrackLayout />;
 }

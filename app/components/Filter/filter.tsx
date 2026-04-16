@@ -1,68 +1,127 @@
 'use client';
 
-import { formatYears, getUniqueValuesByKey } from '@/app/utils/helper';
+import { getUniqueValuesByKey } from '@/app/utils/helper';
 import styles from './filter.module.css';
 import classNames from 'classnames';
 import { useMemo, useState } from 'react';
 import FilterItem from '../FilterItem/filteritem';
-import { useAppSelector } from '@/app/store/store';
+import { useAppSelector, useAppDispatch } from '@/app/store/store';
+import { applyFilters } from '@/app/store/features/trackSlice';
 
 type FilterType = 'author' | 'year' | 'genre' | null;
+type SortType = 'default' | 'newest' | 'oldest';
 
 export default function Filter() {
+  const dispatch = useAppDispatch();
   const [filterActiv, setFilterActiv] = useState<FilterType>(null);
-  const [selectedValues, setSelectedValues] = useState<Record<string, boolean>>(
-    {},
+
+  const activeFilters = useAppSelector((state) => state.tracks.activeFilters);
+  const originalPlaylist = useAppSelector(
+    (state) => state.tracks.originalPlaylist,
   );
-  const playlist = useAppSelector((state) => state.tracks.playlist);
 
   const authors = useMemo(
-    () => getUniqueValuesByKey(playlist, 'author').sort(),
-    [playlist],
-  );
-  const years = useMemo(() => formatYears(playlist), [playlist]);
-  const genres = useMemo(
-    () => getUniqueValuesByKey(playlist, 'genre').sort(),
-    [playlist],
+    () => getUniqueValuesByKey(originalPlaylist, 'author').sort(),
+    [originalPlaylist],
   );
 
-  const handleFilterClick = (filterName: FilterType) => {
-    setFilterActiv((prev) => {
-      const newFilter = prev === filterName ? null : filterName;
-      if (newFilter !== prev) setSelectedValues({});
-      return newFilter;
-    });
+  const genres = useMemo(
+    () => getUniqueValuesByKey(originalPlaylist, 'genre').sort(),
+    [originalPlaylist],
+  );
+
+  const yearOptions = [
+    { id: 'default', label: 'По умолчанию' },
+    { id: 'newest', label: 'Сначала новые' },
+    { id: 'oldest', label: 'Сначала старые' },
+  ];
+
+  const handleButtonClick = (filterName: FilterType) => {
+    if (
+      (filterName === 'author' && activeFilters.author.length > 0) ||
+      (filterName === 'genre' && activeFilters.genre.length > 0) ||
+      (filterName === 'year' && activeFilters.yearSort !== 'default')
+    ) {
+      if (filterName === 'author') {
+        dispatch(applyFilters({ author: null }));
+      } else if (filterName === 'genre') {
+        dispatch(applyFilters({ genre: null }));
+      } else if (filterName === 'year') {
+        dispatch(applyFilters({ yearSort: 'default' }));
+      }
+    } else {
+      setFilterActiv((prev) => (prev === filterName ? null : filterName));
+    }
   };
 
-  const handleItemClick = (value: string) => {
-    setSelectedValues((prev) => {
-      const newValues = { ...prev };
-      if (newValues[value]) {
-        delete newValues[value];
-      } else {
-        Object.keys(newValues).forEach((key) => delete newValues[key]);
-        newValues[value] = true;
-      }
-      return newValues;
-    });
+  const handleAuthorClick = (author: string) => {
+    dispatch(applyFilters({ author }));
+  };
+
+  const handleGenreClick = (genre: string) => {
+    dispatch(applyFilters({ genre }));
+  };
+
+  const handleYearSortClick = (type: SortType) => {
+    dispatch(applyFilters({ yearSort: type }));
+    setFilterActiv(null);
   };
 
   const renderFilterList = (items: string[], type: FilterType) => {
     if (filterActiv !== type) return null;
-    return (
-      <div className={styles.filter__dropdown}>
-        <div className={styles.filter__list}>
-          {items.map((item) => (
-            <FilterItem
-              key={item}
-              text={item}
-              isActive={selectedValues[item]}
-              onClick={() => handleItemClick(item)}
-            />
-          ))}
+
+    if (type === 'year') {
+      return (
+        <div className={styles.filter__dropdown}>
+          <div className={styles.filter__list}>
+            {yearOptions.map((option) => (
+              <FilterItem
+                key={option.id}
+                text={option.label}
+                isActive={activeFilters.yearSort === option.id}
+                onClick={() => handleYearSortClick(option.id as SortType)}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+
+    if (type === 'author') {
+      return (
+        <div className={styles.filter__dropdown}>
+          <div className={styles.filter__list}>
+            {items.map((item) => (
+              <FilterItem
+                key={item}
+                text={item}
+                isActive={activeFilters.author.includes(item)}
+                onClick={() => handleAuthorClick(item)}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (type === 'genre') {
+      return (
+        <div className={styles.filter__dropdown}>
+          <div className={styles.filter__list}>
+            {items.map((item) => (
+              <FilterItem
+                key={item}
+                text={item}
+                isActive={activeFilters.genre.includes(item)}
+                onClick={() => handleGenreClick(item)}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -72,11 +131,16 @@ export default function Filter() {
       <div className={styles.filterButtonWrapper}>
         <div
           className={classNames(styles.filter__button, {
-            [styles.active]: filterActiv === 'author',
+            [styles.active]: activeFilters.author.length > 0,
           })}
-          onClick={() => handleFilterClick('author')}
+          onClick={() => handleButtonClick('author')}
         >
           исполнителю
+          {activeFilters.author.length > 0 && (
+            <span className={styles.filter__count}>
+              ({activeFilters.author.length})
+            </span>
+          )}
         </div>
         {renderFilterList(authors, 'author')}
       </div>
@@ -84,23 +148,28 @@ export default function Filter() {
       <div className={styles.filterButtonWrapper}>
         <div
           className={classNames(styles.filter__button, {
-            [styles.active]: filterActiv === 'year',
+            [styles.active]: activeFilters.yearSort !== 'default',
           })}
-          onClick={() => handleFilterClick('year')}
+          onClick={() => handleButtonClick('year')}
         >
           году выпуска
         </div>
-        {renderFilterList(years, 'year')}
+        {renderFilterList([], 'year')}
       </div>
 
       <div className={styles.filterButtonWrapper}>
         <div
           className={classNames(styles.filter__button, {
-            [styles.active]: filterActiv === 'genre',
+            [styles.active]: activeFilters.genre.length > 0,
           })}
-          onClick={() => handleFilterClick('genre')}
+          onClick={() => handleButtonClick('genre')}
         >
           жанру
+          {activeFilters.genre.length > 0 && (
+            <span className={styles.filter__count}>
+              ({activeFilters.genre.length})
+            </span>
+          )}
         </div>
         {renderFilterList(genres, 'genre')}
       </div>
