@@ -103,6 +103,9 @@ const trackSlice = createSlice({
     setFavoriteTracks: (state, action: PayloadAction<TrackType[]>) => {
       state.favoriteTracks = action.payload;
     },
+    setFavoriteTracksFromApi: (state, action: PayloadAction<TrackType[]>) => {
+      state.favoriteTracks = action.payload;
+    },
     addLikedTracks: (state, action: PayloadAction<TrackType>) => {
       const newTrack = action.payload;
       const exists = state.favoriteTracks.some(
@@ -116,19 +119,6 @@ const trackSlice = createSlice({
       const trackId = String(action.payload);
 
       state.favoriteTracks = state.favoriteTracks.filter(
-        (track) => String(track._id) !== trackId,
-      );
-      state.originalPlaylist = state.originalPlaylist.filter(
-        (track) => String(track._id) !== trackId,
-      );
-
-      state.playlist = state.playlist.filter(
-        (track) => String(track._id) !== trackId,
-      );
-      state.filteredPlaylist = state.filteredPlaylist.filter(
-        (track) => String(track._id) !== trackId,
-      );
-      state.shuffledPlaylist = state.shuffledPlaylist.filter(
         (track) => String(track._id) !== trackId,
       );
     },
@@ -303,6 +293,7 @@ export const {
   applyFilters,
   clearAllFilters,
   setSearchQuery,
+  setFavoriteTracksFromApi,
 } = trackSlice.actions;
 
 export const trackSliceReducer = trackSlice.reducer;
