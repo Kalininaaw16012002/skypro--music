@@ -8,5 +8,5 @@ export interface TrackType {
   album: string;
   logo: string | null;
   track_file: string;
-  stared_user: any[];
+  stared_user: number[];
 }
